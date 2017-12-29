@@ -5,7 +5,7 @@ package sb.jgrad.thermocouple;
  */
 public final class MKT extends Thermocouple {
 
-    public static final String NAME = "ТМК(M)";
+    public static final String NAME = "ТМК(T)";
     public static final String DESCRIPTION = "Номинальная статическая характеристика " +
             "преобразования термопары типа ТМК(T) { медь/медь-никель (медь/константан) }";
 
