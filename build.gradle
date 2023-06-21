@@ -1,48 +1,49 @@
 plugins {
-    id "com.jfrog.artifactory" version "4.5.4"
+    id 'idea'
+    id 'java'
+    id 'jacoco'
+    id 'maven-publish'
 }
 
 group = 'com.sergeybochkov'
-version = '1.0.1'
+version = '1.1'
 
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.artifactory'
-
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    withSourcesJar()
+}
 
 repositories {
-    jcenter()
+    mavenCentral()
     maven {
-        url = "${artifactory_contextUrl}"
+        url "https://maven.sergeybochkov.com"
     }
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.+'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
 }
 
+tasks.named('test') {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
+    repositories {
+        maven {
+            url = "https://maven.sergeybochkov.com/releases"
+            credentials {
+                username = "$reposilite_user"
+                password = "$reposilite_password"
+            }
         }
     }
-}
-
-artifactory {
-    contextUrl = "${artifactory_contextUrl}"
-    publish {
-        repository {
-            repoKey = 'libs-release-local'
-            username = "${artifactory_user}"
-            password = "${artifactory_password}"
-            maven = true
-        }
-        defaults {
-            publications('mavenJava')
+    publications {
+        maven(MavenPublication) {
+            from components.java
         }
     }
 }
