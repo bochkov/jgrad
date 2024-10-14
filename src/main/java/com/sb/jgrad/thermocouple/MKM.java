@@ -26,30 +26,44 @@ public final class MKM extends Thermocouple {
     }
 
     // в ГОСТ ошибка в коэффициентах полинома
-    @SuppressWarnings({"unused", "UnusedAssignment"})
-    @Override
-    public double temp(double v) throws OutOfBoundException {
+    @SuppressWarnings("unused")
+    private double tempByNd(double v) throws OutOfBoundException {
         double[] c;
         if (v >= -6.154 && v <= 4.722)
             c = new double[]{0.4548090, 2.2657698e-2, -7.7935652e-7, 1.1786931e-10};
         else
             throw new OutOfBoundException("value is out of bounds [-6.154..4.722]");
 
-        return calculate0(v);
+        return calculate(c, v);
     }
 
-    private double calculate0(double v) throws OutOfBoundException {
+    @Override
+    public double temp(double v) throws OutOfBoundException {
         double delta = 0.001;
+
         double begin = -200;
+        double lowerBound = value(begin);
+        if (v < lowerBound)
+            throw new OutOfBoundException(String.format("value %f is lower than minimal value = %f", v, lowerBound));
+
         double end = 100;
+        double higherBound = value(end);
+        if (v > higherBound)
+            throw new OutOfBoundException(String.format("value %f is higher than maximum value = %f", v, higherBound));
+
         double middle;
-        do {
+        while (true) {
             middle = (begin + end) / 2;
-            if (v > value(middle))
-                begin = middle;
-            else
+            double value = value(middle);
+            if (value > v) {
                 end = middle;
-        } while (Math.abs(v - value(middle)) > delta);
+            } else {
+                begin = middle;
+            }
+            if (Math.abs(value - v) < delta) {
+                break;
+            }
+        }
         return middle;
     }
 }

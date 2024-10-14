@@ -29,13 +29,18 @@ public abstract class Thermometer implements Graduation {
         double begin = lower();
         double end = higher();
         double middle;
-        do {
+        while (true) {
             middle = (begin + end) / 2;
-            if (value(middle) > ohm)
+            double value = value(middle);
+            if (value > ohm) {
                 end = middle;
-            else
+            } else {
                 begin = middle;
-        } while (Math.abs(value(middle) - ohm) > EPS);
+            }
+            if (Math.abs(value - ohm) < EPS) {
+                break;
+            }
+        }
         return middle;
     }
 }
